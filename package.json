@@ -1,5 +1,5 @@
 {
-  "name": "@mrlinxed/zod-express-middleware",
+  "name": "@mr.linxed/zod-express-middleware",
   "version": "1.4.0",
   "description": "Express middleware to validate requests using zod schema's.",
   "main": "lib/index.js",
