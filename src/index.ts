@@ -61,8 +61,8 @@ export function processRequestBody<TBody>(
 export function processRequestBody<TBody>(
   effectsSchema: ZodEffects<any, TBody> | ZodSchema<TBody>,
 ): RequestHandler<ParamsDictionary, any, TBody, any> {
-  return (req, res, next) => {
-    const parsed = effectsSchema.safeParse(req.body);
+  return async (req, res, next) => {
+    const parsed = await effectsSchema.safeParseAsync(req.body);
     if (parsed.success) {
       req.body = parsed.data;
       return next();
@@ -79,8 +79,8 @@ export function processRequestParams<TParams>(
 export function processRequestParams<TParams>(
   effectsSchema: ZodEffects<any, TParams> | ZodSchema<TParams>,
 ): RequestHandler<TParams, any, any, any> {
-  return (req, res, next) => {
-    const parsed = effectsSchema.safeParse(req.params);
+  return async (req, res, next) => {
+    const parsed = await effectsSchema.safeParseAsync(req.params);
     if (parsed.success) {
       req.params = parsed.data;
       return next();
@@ -99,8 +99,8 @@ export function processRequestQuery<TQuery>(
 export function processRequestQuery<TQuery>(
   effectsSchema: ZodEffects<any, TQuery> | ZodSchema<TQuery>,
 ): RequestHandler<ParamsDictionary, any, any, TQuery> {
-  return (req, res, next) => {
-    const parsed = effectsSchema.safeParse(req.query);
+  return async (req, res, next) => {
+    const parsed = await effectsSchema.safeParseAsync(req.query);
     if (parsed.success) {
       req.query = parsed.data;
       return next();
@@ -119,10 +119,10 @@ export function processRequest<TParams = any, TQuery = any, TBody = any>(
 export function processRequest<TParams = any, TQuery = any, TBody = any>(
   schemas: RequestValidation<TParams, TQuery, TBody> | RequestProcessing<TParams, TQuery, TBody>,
 ): RequestHandler<TParams, any, TBody, TQuery> {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     const errors: Array<ErrorListItem> = [];
     if (schemas.params) {
-      const parsed = schemas.params.safeParse(req.params);
+      const parsed = await schemas.params.safeParseAsync(req.params);
       if (parsed.success) {
         req.params = parsed.data;
       } else {
@@ -130,7 +130,7 @@ export function processRequest<TParams = any, TQuery = any, TBody = any>(
       }
     }
     if (schemas.query) {
-      const parsed = schemas.query.safeParse(req.query);
+      const parsed = await schemas.query.safeParseAsync(req.query);
       if (parsed.success) {
         req.query = parsed.data;
       } else {
@@ -138,7 +138,7 @@ export function processRequest<TParams = any, TQuery = any, TBody = any>(
       }
     }
     if (schemas.body) {
-      const parsed = schemas.body.safeParse(req.body);
+      const parsed = await schemas.body.safeParseAsync(req.body);
       if (parsed.success) {
         req.body = parsed.data;
       } else {
@@ -154,8 +154,8 @@ export function processRequest<TParams = any, TQuery = any, TBody = any>(
 
 export const validateRequestBody: <TBody>(
   zodSchema: ZodSchema<TBody>,
-) => RequestHandler<ParamsDictionary, any, TBody, any> = (schema) => (req, res, next) => {
-  const parsed = schema.safeParse(req.body);
+) => RequestHandler<ParamsDictionary, any, TBody, any> = (schema) => async (req, res, next) => {
+  const parsed = await schema.safeParseAsync(req.body);
   if (parsed.success) {
     return next();
   } else {
@@ -164,8 +164,8 @@ export const validateRequestBody: <TBody>(
 };
 
 export const validateRequestParams: <TParams>(zodSchema: ZodSchema<TParams>) => RequestHandler<TParams, any, any, any> =
-  (schema) => (req, res, next) => {
-    const parsed = schema.safeParse(req.params);
+  (schema) => async (req, res, next) => {
+    const parsed = await schema.safeParseAsync(req.params);
     if (parsed.success) {
       return next();
     } else {
@@ -175,8 +175,8 @@ export const validateRequestParams: <TParams>(zodSchema: ZodSchema<TParams>) => 
 
 export const validateRequestQuery: <TQuery>(
   zodSchema: ZodSchema<TQuery>,
-) => RequestHandler<ParamsDictionary, any, any, TQuery> = (schema) => (req, res, next) => {
-  const parsed = schema.safeParse(req.query);
+) => RequestHandler<ParamsDictionary, any, any, TQuery> = (schema) => async (req, res, next) => {
+  const parsed = await schema.safeParseAsync(req.query);
   if (parsed.success) {
     return next();
   } else {
@@ -188,22 +188,22 @@ export const validateRequest: <TParams = any, TQuery = any, TBody = any>(
   schemas: RequestValidation<TParams, TQuery, TBody>,
 ) => RequestHandler<TParams, any, TBody, TQuery> =
   ({ params, query, body }) =>
-  (req, res, next) => {
+  async (req, res, next) => {
     const errors: Array<ErrorListItem> = [];
     if (params) {
-      const parsed = params.safeParse(req.params);
+      const parsed = await params.safeParseAsync(req.params);
       if (!parsed.success) {
         errors.push({ type: 'Params', errors: parsed.error });
       }
     }
     if (query) {
-      const parsed = query.safeParse(req.query);
+      const parsed = await query.safeParseAsync(req.query);
       if (!parsed.success) {
         errors.push({ type: 'Query', errors: parsed.error });
       }
     }
     if (body) {
-      const parsed = body.safeParse(req.body);
+      const parsed = await body.safeParseAsync(req.body);
       if (!parsed.success) {
         errors.push({ type: 'Body', errors: parsed.error });
       }

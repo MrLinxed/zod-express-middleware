@@ -9,7 +9,7 @@ import {
   validateRequestQuery,
 } from './index';
 import { z } from 'zod';
-import { NextFunction, request, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 let nextFunction: NextFunction = jest.fn();
 
@@ -40,33 +40,33 @@ describe('Request body processor', () => {
     sendMock.mockClear();
   });
   const bodySchema = z.object({ RequestBodyKey: z.string() });
-  it('Should call next() on succcesful validation', () => {
-    processRequestBody(bodySchema)(
+  it('Should call next() on succcesful validation', async () => {
+    await processRequestBody(bodySchema)(
       mockRequest({ body: { RequestBodyKey: 'dit is de value' } }) as Request,
       mockResponse() as Response,
       nextFunction,
     );
     expect(nextFunction).toHaveBeenCalled();
   });
-  it('Should send a HTTP400 on failed validation', () => {
+  it('Should send a HTTP400 on failed validation', async () => {
     const mockedResponse = mockResponse();
-    processRequestBody(z.object({ RequestBodyKey: z.string() }))(
+    await processRequestBody(z.object({ RequestBodyKey: z.string() }))(
       mockRequest({ body: { RequestBodyKey: 12345 } }) as Request,
       mockedResponse as Response,
       nextFunction,
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a meaningful error on failed validation', () => {
+  it('Should send a meaningful error on failed validation', async () => {
     const mockedResponse = mockResponse();
-    processRequestBody(z.object({ RequestBodyKey: z.string() }))(
+    await processRequestBody(z.object({ RequestBodyKey: z.string() }))(
       mockRequest({ body: { RequestBodyKey: 12345 } }) as Request,
       mockedResponse as Response,
       nextFunction,
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Body', errors: expect.anything() }]);
   });
-  it('Should modify the request body', () => {
+  it('Should modify the request body', async () => {
     const requestBody = {
       RequestBodyKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -74,7 +74,7 @@ describe('Request body processor', () => {
     const mockedRequest = mockRequest({
       body: requestBody,
     }) as Request;
-    processRequestBody(z.object({ RequestBodyKey: z.string() }))(
+    await processRequestBody(z.object({ RequestBodyKey: z.string() }))(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -87,33 +87,33 @@ describe('Request body validator', () => {
     sendMock.mockClear();
   });
   const bodySchema = z.object({ RequestBodyKey: z.string() });
-  it('Should call next() on succcesful validation', () => {
-    validateRequestBody(bodySchema)(
+  it('Should call next() on succcesful validation', async () => {
+    await validateRequestBody(bodySchema)(
       mockRequest({ body: { RequestBodyKey: 'dit is de value' } }) as Request,
       mockResponse() as Response,
       nextFunction,
     );
     expect(nextFunction).toHaveBeenCalled();
   });
-  it('Should send a HTTP400 on failed validation', () => {
+  it('Should send a HTTP400 on failed validation', async () => {
     const mockedResponse = mockResponse();
-    validateRequestBody(z.object({ RequestBodyKey: z.string() }))(
+    await validateRequestBody(z.object({ RequestBodyKey: z.string() }))(
       mockRequest({ body: { RequestBodyKey: 12345 } }) as Request,
       mockedResponse as Response,
       nextFunction,
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a meaningful error on failed validation', () => {
+  it('Should send a meaningful error on failed validation', async () => {
     const mockedResponse = mockResponse();
-    validateRequestBody(z.object({ RequestBodyKey: z.string() }))(
+    await validateRequestBody(z.object({ RequestBodyKey: z.string() }))(
       mockRequest({ body: { RequestBodyKey: 12345 } }) as Request,
       mockedResponse as Response,
       nextFunction,
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Body', errors: expect.anything() }]);
   });
-  it('Should not modify the request body', () => {
+  it('Should not modify the request body', async () => {
     const requestBody = {
       RequestBodyKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -121,7 +121,7 @@ describe('Request body validator', () => {
     const mockedRequest = mockRequest({
       body: requestBody,
     }) as Request;
-    validateRequestBody(z.object({ RequestBodyKey: z.string() }))(
+    await validateRequestBody(z.object({ RequestBodyKey: z.string() }))(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -134,33 +134,33 @@ describe('Request query processor', () => {
     sendMock.mockClear();
   });
   const querySchema = z.object({ RequestQueryKey: z.string() });
-  it('Should call next() on succcesful validation', () => {
-    processRequestQuery(querySchema)(
+  it('Should call next() on succcesful validation', async () => {
+    await processRequestQuery(querySchema)(
       mockRequest({ query: { RequestQueryKey: 'dit is de value' } }) as any,
       mockResponse() as Response,
       nextFunction,
     );
     expect(nextFunction).toHaveBeenCalled();
   });
-  it('Should send a HTTP400 on failed validation', () => {
+  it('Should send a HTTP400 on failed validation', async () => {
     const mockedResponse = mockResponse();
-    processRequestQuery(z.object({ RequestQueryKey: z.string() }))(
+    await processRequestQuery(z.object({ RequestQueryKey: z.string() }))(
       mockRequest({ query: { RequestQueryKey: 12345 } }) as any,
       mockedResponse as Response,
       nextFunction,
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a meaningful error on failed validation', () => {
+  it('Should send a meaningful error on failed validation', async () => {
     const mockedResponse = mockResponse();
-    processRequestQuery(z.object({ RequestQueryKey: z.string() }))(
+    await processRequestQuery(z.object({ RequestQueryKey: z.string() }))(
       mockRequest({ query: { RequestQueryKey: 12345 } }) as any,
       mockedResponse as Response,
       nextFunction,
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Query', errors: expect.anything() }]);
   });
-  it('Should modify the request query', () => {
+  it('Should modify the request query', async () => {
     const requestQuery = {
       RequestQueryKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -168,7 +168,7 @@ describe('Request query processor', () => {
     const mockedRequest = mockRequest({
       query: requestQuery,
     }) as any;
-    processRequestQuery(z.object({ RequestQueryKey: z.string() }))(
+    await processRequestQuery(z.object({ RequestQueryKey: z.string() }))(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -181,33 +181,33 @@ describe('Request query validator', () => {
     sendMock.mockClear();
   });
   const querySchema = z.object({ RequestQueryKey: z.string() });
-  it('Should call next() on succcesful validation', () => {
-    validateRequestQuery(querySchema)(
+  it('Should call next() on succcesful validation', async () => {
+    await validateRequestQuery(querySchema)(
       mockRequest({ query: { RequestQueryKey: 'dit is de value' } }) as any,
       mockResponse() as Response,
       nextFunction,
     );
     expect(nextFunction).toHaveBeenCalled();
   });
-  it('Should send a HTTP400 on failed validation', () => {
+  it('Should send a HTTP400 on failed validation', async () => {
     const mockedResponse = mockResponse();
-    validateRequestQuery(z.object({ RequestQueryKey: z.string() }))(
+    await validateRequestQuery(z.object({ RequestQueryKey: z.string() }))(
       mockRequest({ query: { RequestQueryKey: 12345 } }) as any,
       mockedResponse as Response,
       nextFunction,
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a meaningful error on failed validation', () => {
+  it('Should send a meaningful error on failed validation', async () => {
     const mockedResponse = mockResponse();
-    validateRequestQuery(z.object({ RequestQueryKey: z.string() }))(
+    await validateRequestQuery(z.object({ RequestQueryKey: z.string() }))(
       mockRequest({ query: { RequestQueryKey: 12345 } }) as any,
       mockedResponse as Response,
       nextFunction,
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Query', errors: expect.anything() }]);
   });
-  it('Should not modify the request query', () => {
+  it('Should not modify the request query', async () => {
     const requestQuery = {
       RequestQueryKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -215,7 +215,7 @@ describe('Request query validator', () => {
     const mockedRequest = mockRequest({
       query: requestQuery,
     }) as any;
-    validateRequestQuery(z.object({ RequestQueryKey: z.string() }))(
+    await validateRequestQuery(z.object({ RequestQueryKey: z.string() }))(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -228,33 +228,33 @@ describe('Request params processor', () => {
     sendMock.mockClear();
   });
   const paramsSchema = z.object({ RequestParamsKey: z.string() });
-  it('Should call next() on succcesful validation', () => {
-    processRequestParams(paramsSchema)(
+  it('Should call next() on succcesful validation', async () => {
+    await processRequestParams(paramsSchema)(
       mockRequest({ params: { RequestParamsKey: 'dit is de value' } }) as any,
       mockResponse() as Response,
       nextFunction,
     );
     expect(nextFunction).toHaveBeenCalled();
   });
-  it('Should send a HTTP400 on failed validation', () => {
+  it('Should send a HTTP400 on failed validation', async () => {
     const mockedResponse = mockResponse();
-    processRequestParams(z.object({ RequestParamsKey: z.string() }))(
+    await processRequestParams(z.object({ RequestParamsKey: z.string() }))(
       mockRequest({ params: { RequestParamsKey: 12345 } }) as any,
       mockedResponse as Response,
       nextFunction,
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a meaningful error on failed validation', () => {
+  it('Should send a meaningful error on failed validation', async () => {
     const mockedResponse = mockResponse();
-    processRequestParams(z.object({ RequestParamsKey: z.string() }))(
+    await processRequestParams(z.object({ RequestParamsKey: z.string() }))(
       mockRequest({ params: { RequestParamsKey: 12345 } }) as any,
       mockedResponse as Response,
       nextFunction,
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Params', errors: expect.anything() }]);
   });
-  it('Should modify the request params', () => {
+  it('Should modify the request params', async () => {
     const requestParams = {
       RequestParamsKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -262,7 +262,7 @@ describe('Request params processor', () => {
     const mockedRequest = mockRequest({
       params: requestParams,
     }) as any;
-    processRequestParams(z.object({ RequestParamsKey: z.string() }))(
+    await processRequestParams(z.object({ RequestParamsKey: z.string() }))(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -275,33 +275,33 @@ describe('Request params validator', () => {
     sendMock.mockClear();
   });
   const paramsSchema = z.object({ RequestParamsKey: z.string() });
-  it('Should call next() on succcesful validation', () => {
-    validateRequestParams(paramsSchema)(
+  it('Should call next() on succcesful validation', async () => {
+    await validateRequestParams(paramsSchema)(
       mockRequest({ params: { RequestParamsKey: 'dit is de value' } }) as any,
       mockResponse() as Response,
       nextFunction,
     );
     expect(nextFunction).toHaveBeenCalled();
   });
-  it('Should send a HTTP400 on failed validation', () => {
+  it('Should send a HTTP400 on failed validation', async () => {
     const mockedResponse = mockResponse();
-    validateRequestParams(z.object({ RequestParamsKey: z.string() }))(
+    await validateRequestParams(z.object({ RequestParamsKey: z.string() }))(
       mockRequest({ params: { RequestParamsKey: 12345 } }) as any,
       mockedResponse as Response,
       nextFunction,
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a meaningful error on failed validation', () => {
+  it('Should send a meaningful error on failed validation', async () => {
     const mockedResponse = mockResponse();
-    validateRequestParams(z.object({ RequestParamsKey: z.string() }))(
+    await validateRequestParams(z.object({ RequestParamsKey: z.string() }))(
       mockRequest({ params: { RequestParamsKey: 12345 } }) as any,
       mockedResponse as Response,
       nextFunction,
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Params', errors: expect.anything() }]);
   });
-  it('Should not modify the request params', () => {
+  it('Should not modify the request params', async () => {
     const requestParams = {
       RequestParamsKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -309,7 +309,7 @@ describe('Request params validator', () => {
     const mockedRequest = mockRequest({
       params: requestParams,
     }) as any;
-    validateRequestParams(z.object({ RequestParamsKey: z.string() }))(
+    await validateRequestParams(z.object({ RequestParamsKey: z.string() }))(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -324,8 +324,8 @@ describe('Request processor', () => {
   const paramsSchema = z.object({ RequestParamsKey: z.string() });
   const bodySchema = z.object({ RequestBodyKey: z.string() });
   const querySchema = z.object({ RequestQueryKey: z.string() });
-  it('Should call next() on succcesful validation', () => {
-    processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+  it('Should call next() on succcesful validation', async () => {
+    await processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 'dit is de value' },
@@ -336,9 +336,9 @@ describe('Request processor', () => {
     );
     expect(nextFunction).toHaveBeenCalled();
   });
-  it('Should send a HTTP400 on failed validation of params', () => {
+  it('Should send a HTTP400 on failed validation of params', async () => {
     const mockedResponse = mockResponse();
-    processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 1234 },
         body: { RequestBodyKey: 'dit is de value' },
@@ -349,9 +349,9 @@ describe('Request processor', () => {
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a HTTP400 on failed validation of body', () => {
+  it('Should send a HTTP400 on failed validation of body', async () => {
     const mockedResponse = mockResponse();
-    processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 1234 },
@@ -362,9 +362,9 @@ describe('Request processor', () => {
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a HTTP400 on failed validation of query', () => {
+  it('Should send a HTTP400 on failed validation of query', async () => {
     const mockedResponse = mockResponse();
-    processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 'dit is de value' },
@@ -375,9 +375,9 @@ describe('Request processor', () => {
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a meaningful error on failed validation of params', () => {
+  it('Should send a meaningful error on failed validation of params', async () => {
     const mockedResponse = mockResponse();
-    processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 1234 },
         body: { RequestBodyKey: 'dit is de value' },
@@ -388,9 +388,9 @@ describe('Request processor', () => {
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Params', errors: expect.anything() }]);
   });
-  it('Should send a meaningful error on failed validation of body', () => {
+  it('Should send a meaningful error on failed validation of body', async () => {
     const mockedResponse = mockResponse();
-    processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 1234 },
@@ -401,9 +401,9 @@ describe('Request processor', () => {
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Body', errors: expect.anything() }]);
   });
-  it('Should send a meaningful error on failed validation of query', () => {
+  it('Should send a meaningful error on failed validation of query', async () => {
     const mockedResponse = mockResponse();
-    processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await processRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 'dit is de value' },
@@ -414,7 +414,7 @@ describe('Request processor', () => {
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Query', errors: expect.anything() }]);
   });
-  it('Should modify the request params', () => {
+  it('Should modify the request params', async () => {
     const requestParams = {
       RequestParamsKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -422,7 +422,7 @@ describe('Request processor', () => {
     const mockedRequest = mockRequest({
       params: requestParams,
     }) as any;
-    processRequest({ params: z.object({ RequestParamsKey: z.string() }) })(
+    await processRequest({ params: z.object({ RequestParamsKey: z.string() }) })(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -431,7 +431,7 @@ describe('Request processor', () => {
       RequestParamsKey: requestParams.RequestParamsKey,
     });
   });
-  it('Should modify the request query', () => {
+  it('Should modify the request query', async () => {
     const requestQuery = {
       RequestQueryKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -439,7 +439,7 @@ describe('Request processor', () => {
     const mockedRequest = mockRequest({
       query: requestQuery,
     }) as any;
-    processRequest({ query: z.object({ RequestQueryKey: z.string() }) })(
+    await processRequest({ query: z.object({ RequestQueryKey: z.string() }) })(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -449,7 +449,7 @@ describe('Request processor', () => {
     });
   });
 
-  it('Should modify the request body', () => {
+  it('Should modify the request body', async () => {
     const requestBody = {
       RequestBodyKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -457,7 +457,7 @@ describe('Request processor', () => {
     const mockedRequest = mockRequest({
       body: requestBody,
     }) as Request;
-    processRequest({ body: z.object({ RequestBodyKey: z.string() }) })(
+    await processRequest({ body: z.object({ RequestBodyKey: z.string() }) })(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -467,7 +467,7 @@ describe('Request processor', () => {
     });
   });
 
-  it('Should modify the request', () => {
+  it('Should modify the request', async () => {
     const requestBody = {
       RequestBodyKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -485,7 +485,7 @@ describe('Request processor', () => {
       body: requestBody,
       query: requestQuery,
     }) as any;
-    processRequest({
+    await processRequest({
       body: z.object({ RequestBodyKey: z.string() }),
       query: z.object({ RequestQueryKey: z.string() }),
     })(mockedRequest, mockResponse() as Response, nextFunction);
@@ -508,8 +508,8 @@ describe('Request validator', () => {
   const paramsSchema = z.object({ RequestParamsKey: z.string() });
   const bodySchema = z.object({ RequestBodyKey: z.string() });
   const querySchema = z.object({ RequestQueryKey: z.string() });
-  it('Should call next() on succcesful validation', () => {
-    validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+  it('Should call next() on succcesful validation', async () => {
+    await validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 'dit is de value' },
@@ -520,9 +520,9 @@ describe('Request validator', () => {
     );
     expect(nextFunction).toHaveBeenCalled();
   });
-  it('Should send a HTTP400 on failed validation of params', () => {
+  it('Should send a HTTP400 on failed validation of params', async () => {
     const mockedResponse = mockResponse();
-    validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 1234 },
         body: { RequestBodyKey: 'dit is de value' },
@@ -533,9 +533,9 @@ describe('Request validator', () => {
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a HTTP400 on failed validation of body', () => {
+  it('Should send a HTTP400 on failed validation of body', async () => {
     const mockedResponse = mockResponse();
-    validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 1234 },
@@ -546,9 +546,9 @@ describe('Request validator', () => {
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a HTTP400 on failed validation of query', () => {
+  it('Should send a HTTP400 on failed validation of query', async () => {
     const mockedResponse = mockResponse();
-    validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 'dit is de value' },
@@ -559,9 +559,9 @@ describe('Request validator', () => {
     );
     expect(mockedResponse.status).toHaveBeenCalledWith(400);
   });
-  it('Should send a meaningful error on failed validation of params', () => {
+  it('Should send a meaningful error on failed validation of params', async () => {
     const mockedResponse = mockResponse();
-    validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 1234 },
         body: { RequestBodyKey: 'dit is de value' },
@@ -572,9 +572,9 @@ describe('Request validator', () => {
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Params', errors: expect.anything() }]);
   });
-  it('Should send a meaningful error on failed validation of body', () => {
+  it('Should send a meaningful error on failed validation of body', async () => {
     const mockedResponse = mockResponse();
-    validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 1234 },
@@ -585,9 +585,9 @@ describe('Request validator', () => {
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Body', errors: expect.anything() }]);
   });
-  it('Should send a meaningful error on failed validation of query', () => {
+  it('Should send a meaningful error on failed validation of query', async () => {
     const mockedResponse = mockResponse();
-    validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
+    await validateRequest({ body: bodySchema, params: paramsSchema, query: querySchema })(
       mockRequest({
         params: { RequestParamsKey: 'dit is de value' },
         body: { RequestBodyKey: 'dit is de value' },
@@ -598,7 +598,7 @@ describe('Request validator', () => {
     );
     expect(sendMock).toHaveBeenCalledWith([{ type: 'Query', errors: expect.anything() }]);
   });
-  it('Should not modify the request params', () => {
+  it('Should not modify the request params', async () => {
     const requestParams = {
       RequestParamsKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -606,14 +606,14 @@ describe('Request validator', () => {
     const mockedRequest = mockRequest({
       params: requestParams,
     }) as any;
-    validateRequest({ params: z.object({ RequestParamsKey: z.string() }) })(
+    await validateRequest({ params: z.object({ RequestParamsKey: z.string() }) })(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
     );
     expect(mockedRequest.params).toEqual(requestParams);
   });
-  it('Should not modify the request query', () => {
+  it('Should not modify the request query', async () => {
     const requestQuery = {
       RequestQueryKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -621,7 +621,7 @@ describe('Request validator', () => {
     const mockedRequest = mockRequest({
       query: requestQuery,
     }) as any;
-    validateRequest({ query: z.object({ RequestQueryKey: z.string() }) })(
+    await validateRequest({ query: z.object({ RequestQueryKey: z.string() }) })(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -629,7 +629,7 @@ describe('Request validator', () => {
     expect(mockedRequest.query).toEqual(requestQuery);
   });
 
-  it('Should not modify the request body', () => {
+  it('Should not modify the request body', async () => {
     const requestBody = {
       RequestBodyKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -637,7 +637,7 @@ describe('Request validator', () => {
     const mockedRequest = mockRequest({
       body: requestBody,
     }) as Request;
-    validateRequest({ body: z.object({ RequestBodyKey: z.string() }) })(
+    await validateRequest({ body: z.object({ RequestBodyKey: z.string() }) })(
       mockedRequest,
       mockResponse() as Response,
       nextFunction,
@@ -645,7 +645,7 @@ describe('Request validator', () => {
     expect(mockedRequest.body).toEqual(requestBody);
   });
 
-  it('Should not modify the request', () => {
+  it('Should not modify the request', async () => {
     const requestBody = {
       RequestBodyKey: "This is the one we're parsing",
       SomeOtherRandomValue: 'This one should not be removed',
@@ -663,7 +663,7 @@ describe('Request validator', () => {
       body: requestBody,
       query: requestQuery,
     }) as any;
-    validateRequest({
+    await validateRequest({
       body: z.object({ RequestBodyKey: z.string() }),
       query: z.object({ RequestQueryKey: z.string() }),
     })(mockedRequest, mockResponse() as Response, nextFunction);
